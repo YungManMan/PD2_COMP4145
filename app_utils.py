@@ -4,6 +4,7 @@ import re
 import sqlite3
 from datetime import datetime
 from io import BytesIO
+from pathlib import Path
 
 import pandas as pd
 import requests
@@ -13,7 +14,7 @@ from PIL import Image
 
 API_URL = "https://genai.hkbu.edu.hk/api/v1/chat/completions"
 MODEL_NAME = "gpt-6-luna"
-DB_PATH = "skin_history.db"
+DB_PATH = Path(__file__).resolve().parent / "skin_history.db"
 
 
 def init_db():
@@ -46,6 +47,7 @@ def init_db():
 
 
 def save_history_record(cleanliness, quality, age, concerns, recommended_products=None):
+    init_db()
     conn = sqlite3.connect(DB_PATH)
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     recommended_products = recommended_products or []
@@ -65,6 +67,7 @@ def save_history_record(cleanliness, quality, age, concerns, recommended_product
 
 
 def fetch_history_records():
+    init_db()
     conn = sqlite3.connect(DB_PATH)
     rows = conn.execute(
         "SELECT id, timestamp, cleanliness, quality, age, concerns_json, recommended_products_json FROM history ORDER BY id DESC"
